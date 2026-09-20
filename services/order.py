@@ -14,11 +14,16 @@ def create_order(
     date: datetime = None
 ) -> None:
     user = get_user_model().objects.get(username=username)
+
     order = Order.objects.create(user=user)
 
     if date:
+        # Если передана строка вида '2020-11-10 14:40', парсим ее в datetime
+        if isinstance(date, str):
+            date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
+
         order.created_at = date
-        order.save()
+        order.save(update_fields=["created_at"])
 
     for ticket in tickets:
         Ticket.objects.create(
